@@ -30,10 +30,14 @@ func startRepl(cfg *config) {
         }
         
         commandName := words[0]
+        args := []string{}
+        if len(words) > 1 {
+            args = words[1:]
+        }
 
         command, exists := getCommands()[commandName]
         if exists {
-            err := command.callback(cfg)
+            err := command.callback(cfg, args...)
             if err != nil {
                 fmt.Println(err)
             }
@@ -54,30 +58,35 @@ func cleanInput(text string) []string {
 type cliCommand struct {
     name        string
     description string
-    callback    func(*config) error
+    callback    func(*config, ...string) error
 }
 
 func getCommands() map[string]cliCommand{
     return map[string]cliCommand{
         "help": {
-            name: "help",
+            name:        "help",
             description: "Displays a help messsage",
-            callback: commandHelp,
+            callback:     commandHelp,
+        },
+        "explore": {
+            name:        "explore <location_name>",
+            description: "Explore a location",
+            callback:     commandExplore,
         },
         "map": {
-            name: "map",
-            description: "Displays the next page of location areas",
-            callback: commandMapf,
+            name:           "map",
+            description:    "Displays the next page of location areas",
+            callback:       commandMapf,
         },
         "mapb": {
-            name: "mapb",
-            description: "Displays the previous page of location areas",
-            callback: commandMapb,
+            name:           "mapb",
+            description:    "Displays the previous page of location areas",
+            callback:       commandMapb,
         },
         "exit": {
-            name: "exit",
-            description: "Exit the Pokedex",
-            callback: commandExit,
+            name:           "exit",
+            description:    "Exit the Pokedex",
+            callback:       commandExit,
         },
     }
 }
