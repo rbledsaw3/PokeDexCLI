@@ -1,6 +1,20 @@
 package main
 
-import "testing"
+import (
+    "bytes"
+    "os"
+    "testing"
+)
+
+type exitMock struct {
+    called bool
+    code int
+}
+
+func (e *exitMock) exit(code int) {
+    e.called = true
+    e.code = code
+}
 
 func TestCleanInput(t *testing.T) {
     cases := []struct {
