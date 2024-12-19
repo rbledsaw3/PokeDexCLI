@@ -5,9 +5,16 @@ import (
     "fmt"
     "os"
     "strings"
+    "github.com/rbledsaw3/pokedexcli/internal/pokeapi"
 )
 
-func startRepl() {
+type config struct {
+    pokeapiClient       pokeapi.Client
+    nextLocationsURL    *string
+    prevLocationsURL    *string
+}
+
+func startRepl(cfg *config) {
     reader := bufio.NewScanner(os.Stdin)
     if reader == nil {
         fmt.Println("Error creating reader")
@@ -26,7 +33,7 @@ func startRepl() {
 
         command, exists := getCommands()[commandName]
         if exists {
-            err := command.callback()
+            err := command.callback(cfg)
             if err != nil {
                 fmt.Println(err)
             }
@@ -47,7 +54,7 @@ func cleanInput(text string) []string {
 type cliCommand struct {
     name        string
     description string
-    callback    func() error
+    callback    func(*config) error
 }
 
 func getCommands() map[string]cliCommand{
@@ -56,6 +63,16 @@ func getCommands() map[string]cliCommand{
             name: "help",
             description: "Displays a help messsage",
             callback: commandHelp,
+        },
+        "map": {
+            name: "map",
+            description: "Displays the next page of location areas",
+            callback: commandMapf,
+        },
+        "mapb": {
+            name: "mapb",
+            description: "Displays the previous page of location areas",
+            callback: commandMapb,
         },
         "exit": {
             name: "exit",
